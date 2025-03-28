@@ -1,18 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Member } from '@/types/member';
+import { transformUserData } from '@/utils/api';
 
-interface Member {
-  id: number;
-  name: {
-    first: string;
-    last: string;
-  };
-  age: number;
-  thumbnail: string;
-}
-
-// Function to split full name into first and last
 const splitName = (fullName: string) => {
   const parts = fullName.split(' ');
   return {
@@ -20,7 +12,6 @@ const splitName = (fullName: string) => {
     last: parts.slice(1).join(' ') 
   }
 };
-
 
 const generateAge = (dob: {date: string, age: number}) => {
   const { age } = dob;
@@ -35,6 +26,7 @@ export default function MembersPage() {
   const [numberOfMembers, setNumberOfMembers] = useState("15");
   const [filterString, setFilterString] = useState("");
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
+  const seedKey = crypto.randomUUID();
 
   useEffect(() => {
     if(filterString.length > 0) {
@@ -46,33 +38,16 @@ export default function MembersPage() {
       setFilteredMembers(members);
     }
   },[filterString])
+
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const response = await fetch(`https://randomuser.me/api/?results=${numberOfMembers}&inc=id,name,dob,picture`);
+        const response = await fetch(`https://randomuser.me/api/?results=${numberOfMembers}&inc=login,name,dob,picture&seed=${seedKey}`);
         if (!response.ok) {
           throw new Error('Failed to fetch members');
         }
         const data = await response.json();
-        // Transform the data to match our Member interface
-        const transformedMembers = data.results.map((user: any) => {
-          // Create full name by combining first and last
-          const fullName = `${user.name.first} ${user.name.last}`;
-          // Split the name
-          const { first, last } = splitName(fullName);
-          const age = generateAge(user.dob);
-
-          return {
-            // Todo: ids should be the same format.
-            id: user.id.value || Math.random(),
-            name: {
-              first,
-              last
-            },
-            age,
-            thumbnail: user.picture.thumbnail
-          };
-        });
+        const transformedMembers = data.results.map(transformUserData);
         setMembers(transformedMembers);
         setFilteredMembers(transformedMembers);
       } catch (err) {
@@ -107,18 +82,22 @@ export default function MembersPage() {
       ) : (
         <div className="flex flex-wrap gap-6 justify-center flex-row">
           {filteredMembers.map((member) => (
-            <div
+            <Link 
               key={member.id}
-              className="flex flex-col bg-emerald-700 rounded-lg shadow-md p-6 w-full max-w-sm hover:shadow-lg transition-shadow"
+              href={`/profile?member=${String(member.id)}&seed=${seedKey}`}
             >
-              <section className="flex flex-row justify-between">
-                <h2 className="text-xl font-semibold mb-2">
-                  {member.name.first} {member.name.last}
-                </h2>
-                <img src={member.thumbnail} alt={`${member.name.first} ${member.name.last}`} className="w-12 h-12 rounded-full" />
-              </section>
-              <p className="text-black-600 mb-2">Age: {member.age}</p>
-            </div>
+              <div
+                className="flex flex-col bg-emerald-700 rounded-lg shadow-md p-6 w-full max-w-sm hover:shadow-lg transition-shadow cursor-pointer"
+              >
+                <section className="flex flex-row justify-between">
+                  <h2 className="text-xl font-semibold mb-2">
+                    {member.name.first} {member.name.last}
+                  </h2>
+                  <img src={member.thumbnail} alt={`${member.name.first} ${member.name.last}`} className="w-12 h-12 rounded-full" />
+                </section>
+                <p className="text-black-600 mb-2">Age: {member.age}</p>
+              </div>
+            </Link>
           ))}
         </div>
       )}
