@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Member } from '@/types/member';
 import { transformUserData } from '@/utils/api';
+import Image from 'next/image';
 
 export default function Home() {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [numberOfMembers, setNumberOfMembers] = useState("15");
+  const [numberOfMembers] = useState("15");
   const [filterString, setFilterString] = useState("");
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const seedKey = "1234567890abcdefghijklmnopqrstuvwxyz";
-
 
   useEffect(() => {
     if(filterString.length > 0) {
@@ -24,7 +24,7 @@ export default function Home() {
     } else {
       setFilteredMembers(members);
     }
-  },[filterString])
+  },[filterString, members])
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -84,7 +84,13 @@ export default function Home() {
                     <h2 className="text-xl font-semibold mb-2">
                       {member.name.first} {member.name.last}
                     </h2>
-                    <img src={member.thumbnail} alt={`${member.name.first} ${member.name.last}`} className="w-12 h-12 rounded-full" />
+                    <Image 
+                      src={member.thumbnail} 
+                      alt={`${member.name.first} ${member.name.last}`} 
+                      width={48}
+                      height={48}
+                      className="rounded-full" 
+                    />
                   </section>
                   <p className="text-black-600 mb-2">Age: {member.age}</p>
                 </div>

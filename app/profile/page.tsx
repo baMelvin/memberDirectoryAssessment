@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Member } from '@/types/member';
-import { transformUserData } from '@/utils/api';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -72,10 +72,12 @@ export default function Profile() {
             {user ? (
                 <div className="bg-gradient-to-b from-emerald-50 to-emerald-100 rounded-lg shadow-md p-6 max-w-2xl mx-auto">
                     <div className="flex flex-col items-center">
-                        <img 
+                        <Image 
                             src={user.profilePicture} 
                             alt={`${user.name.first} ${user.name.last}`} 
-                            className="w-48 h-48 rounded-full mb-6 object-cover border-4 border-white shadow-lg"
+                            width={192}
+                            height={192}
+                            className="rounded-full mb-6 object-cover border-4 border-white shadow-lg"
                         />
                         <h2 className="text-3xl font-semibold mb-6 text-gray-800">
                             {user.name.first} {user.name.last}
