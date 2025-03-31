@@ -26,6 +26,10 @@ export const transformUserData = (user: any): Member => {
     },
     age,
     thumbnail: user.picture.thumbnail,
-    profilePicture: user.picture.large
+    profilePicture: user.picture.large,
+    email: user.email,
+    phone: user.phone,
+    dob: user.dob,
+    location: user.location
   };
 }; 
